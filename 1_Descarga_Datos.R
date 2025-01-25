@@ -181,5 +181,10 @@ variables_nocorr = subset(clima_df, select = no_corr)
 #lo unimos a los datos de gbif
 df_comp <- data.frame(cbind(linces_simple, variables_nocorr))
 
+summary(df_comp) #Existen puntos donde nuestras variables seleccionadas no están
+#medidas
+# por tanto, debemos borrarlos (para posteriores análisis)
+df_comp <- na.omit(df_comp)
+
 #y por ultimo, lo guardamos para usar más adelante
 write.csv(df_comp, "occ_completo.csv")
