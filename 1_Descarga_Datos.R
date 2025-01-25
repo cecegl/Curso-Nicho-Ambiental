@@ -35,14 +35,15 @@ library(CoordinateCleaner)
 
 #Elige un directorio de trabajo
 #(esta será la carpeta donde guardaremos los datos)
-results_folder <- "C:/Users/Usuario/Desktop/cosas serias/MNCN/Curso Nicho Ambiental/Pruebas/2_Results"
+results_folder <- "" #añadid la ruta que querais usar para el curso
 setwd(results_folder)
 
 #Añadimos nuestros credenciales de GBIF para la descarga de datos
 
-GBIF_USER="celiagl"
-GBIF_PWD="CursoNicho2025"
-GBIF_EMAIL="cece.glop@gmail.com"
+#Debeis añadir aquí vuestros datos
+GBIF_USER="" #usuario
+GBIF_PWD="" #contraseña
+GBIF_EMAIL="" #correo electrónico
 
 #Descarga de datos de especies####
 
