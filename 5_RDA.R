@@ -4,7 +4,7 @@
 
 #Luis R. Pertierra y Celia González López
 
-#SESIÓN 5: Correspondencias nicho y genoma
+#SESIÓN 5: Correspondencias ambiente y genoma
 ##########################################
 
 #Preparamos el entorno de trabajo####
@@ -14,11 +14,15 @@ rm(list = ls())
 
 #Instalamos los paquetes necesarios
 #install.packages("remotes")
+#if (!require("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#BiocManager::install("LEA")
 
 #Cargamos los paquetes
 library(remotes)
 library(psych)
 library(vegan)
+library(LEA)
 library(permute)
 library(lattice)
 library(dplyr)
@@ -27,20 +31,24 @@ library(corrplot)
 setwd("C:/Users/Usuario/Desktop/cosas serias/MNCN/Curso Nicho Ambiental/5_Sesion")
 
 #Cargamos los datos
-Genotypes <- read.csv("rock0-adapt.csv")
-EnvVars<-read.csv("ClimValues_Rock3.csv") # Read in environmental variables
+Genotypes<-read.lfmm("./rock0-adapt.lfmm") #Leemos los datos genéticos
+EnvVars<-read.csv("ClimValues_Rock3.csv") # Leemos las variables ambientales
 
 #Comprobamos que no falten datos
 dim(Genotypes)
 sum(is.na(Genotypes))
 
+EnvVars$MEM1<-as.character(EnvVars$MEM1)
+
+Population<-EnvVars$MEM1
+row.names(Genotypes)<- Population
+row.names(Genotypes)
+identical(rownames(Genotypes), EnvVars$Population)
 
 EnvVars[, 6:31] <- lapply(EnvVars[, 6:31], function(x) as.numeric(as.character(x)))
 
 
 M <- cor(EnvVars [,6:31])
-
-#Este codigo de Luis
 
 corrplot(M, method = "circle")
 
@@ -49,12 +57,12 @@ Env2 <- EnvVars[,6:31]
 corrplot(as.matrix(Env2))
 
 
-SelectedVars<-select(EnvVars,8,10,11,13,31)
+SelectedVars<-EnvVars %>%
+  dplyr::select(c(8,10,11,13,31))
 colnames(SelectedVars) <- c("sst","chlo","velo","bio2","pH")
 
 
 pairs.panels(SelectedVars, scale = TRUE)
-
 
 
 HL_rda<- rda(Genotypes ~ ., data = SelectedVars, scale = TRUE)
