@@ -47,9 +47,6 @@ GBIF_EMAIL="" #correo electrónico
 
 #Descarga de datos de especies####
 
-#Algunas especies tienen miles de registros en GBIF y no queremos descargar todos
-#n_limit <- 1000 #Esta linea serviría para limitar las descargas a 1000 registros
-
 #Especie (o especies) con la que vamos a trabajar
 spp_names <- c("Lynx lynx", "Lynx rufus",
               "Lynx canadensis", "Lynx pardinus")
