@@ -131,11 +131,10 @@ my_map <- crop(x = world_map, y = studyArea)
 plot(my_map, axes = TRUE,
      col = "grey95")
 
-points(x = linces$decimalLongitude,
-       y = linces$decimalLatitude,
-       col = "olivedrab",
-       pch = 20,
-       cex = 0.75)
+points(linces[linces$species=="Lynx pardinus",23:22],pch=20,cex=0.3,col="orange")
+points(linces[linces$species=="Lynx lynx",23:22],pch=20,cex=0.3,col="lightblue")
+points(linces[linces$species=="Lynx rufus",23:22],pch=20,cex=0.3,col="olivedrab3")
+points(linces[linces$species=="Lynx canadensis",23:22],pch=20,cex=0.3,col="brown")
 
 #Ahora vamos a cortar los datos de clima a la extensión deseada
 
