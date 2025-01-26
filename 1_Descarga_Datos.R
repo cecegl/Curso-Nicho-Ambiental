@@ -35,15 +35,14 @@ library(CoordinateCleaner)
 
 #Elige un directorio de trabajo
 #(esta será la carpeta donde guardaremos los datos)
-results_folder <- "" #añadid la ruta que querais usar para el curso
+results_folder <- "C:/Users/Usuario/Desktop/cosas serias/MNCN/Curso Nicho Ambiental/Pruebas/2_Results"
 setwd(results_folder)
 
 #Añadimos nuestros credenciales de GBIF para la descarga de datos
 
-#Debeis añadir aquí vuestros datos
-GBIF_USER="" #usuario
-GBIF_PWD="" #contraseña
-GBIF_EMAIL="" #correo electrónico
+GBIF_USER="celiagl"
+GBIF_PWD="CursoNicho2025"
+GBIF_EMAIL="cece.glop@gmail.com"
 
 #Descarga de datos de especies####
 
@@ -133,6 +132,7 @@ points(linces[linces$species=="Lynx lynx",23:22],pch=20,cex=0.3,col="lightblue")
 points(linces[linces$species=="Lynx rufus",23:22],pch=20,cex=0.3,col="olivedrab3")
 points(linces[linces$species=="Lynx canadensis",23:22],pch=20,cex=0.3,col="brown")
 
+
 #Ahora vamos a cortar los datos de clima a la extensión deseada
 
 bioclim_data <- crop(x = clim, y = studyArea)
@@ -158,6 +158,7 @@ columnas <- c("sp","lon","lat")
 
 colnames(linces_simple) <- columnas
 
+
 #extraemos las variables climáticas en las coordenadas de presencias
 bioclim_extract <- raster::extract(clima_completo,
                            linces_simple[,c("lon","lat")])
@@ -175,13 +176,17 @@ no_corr <- vif_select@results$Variables
 
 variables_nocorr = subset(clima_df, select = no_corr)
 
-#lo unimos a los datos de gbif
-df_comp <- data.frame(cbind(linces_simple, variables_nocorr))
+#lo unimos a los datos de gbif (guardamos también un df completo sin descartar variables)
+occ_todas_variables <- data.frame(cbind(linces_simple, clima_df))
+occ_varnocorr <- data.frame(cbind(linces_simple, variables_nocorr))
 
-summary(df_comp) #Existen puntos donde nuestras variables seleccionadas no están
+summary(occ_todas_variables)
+summary(occ_varnocorr) #Existen puntos donde nuestras variables seleccionadas no están
 #medidas
 # por tanto, debemos borrarlos (para posteriores análisis)
-df_comp <- na.omit(df_comp)
+occ_todas_variables <- na.omit(occ_todas_variables)
+occ_varnocorr <- na.omit(occ_varnocorr)
 
 #y por ultimo, lo guardamos para usar más adelante
-write.csv(df_comp, "occ_completo.csv")
+write.csv(occ_todas_variables, "occ_completo.csv")
+write.csv(occ_varnocorr, "occ_variables_nocorr.csv")
