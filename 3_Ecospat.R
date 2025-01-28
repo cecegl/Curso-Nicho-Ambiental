@@ -16,19 +16,21 @@ rm(list = ls())
 #Instala los paquetes necesarios para la sesión
 #install.packages("ecospat")
 #install.packages("ade4")
+#install.packages("terra")
 
 #Carga los paquetes
 library(ecospat)
 library(ade4)
+library(terra)
 
 
 # Establece el directorio de trabajo
-setwd("C:/Users/Usuario/Desktop/cosas serias/MNCN/Curso Nicho Ambiental/Pruebas/2_Results")
-
+results_folder <- "C:/Users/Usuario/Desktop/cosas serias/MNCN/Curso Nicho Ambiental/Pruebas/2_Results"
+setwd(results_folder)
 #Carga de datos####
 
 #Cargamos los datos de linces que descargamos en la primera sesión
-linces <- read.csv("occ_completo.csv")
+linces <- read.csv("occ_variables_nocorr.csv")
 
 summary(linces)
 
@@ -42,28 +44,96 @@ pardinus <- linces %>%
 canadensis <- linces %>%
   filter(sp == "Lynx canadensis")
 
+lynx_samp <- lynx[sample(nrow(lynx),100),]
+pardinus_samp <- pardinus[sample(nrow(pardinus),100),]
+
+#Vamos a añadir datos aleatorios de falsas ausencias, ya que necesitamos comparar
+#el espacio que ocupa la especie realmente frente al que no
+
+#Recordad este código de la primera sesión
+studyArea = extent(-10,60,25,75)
+
+world_map <- world(resolution = 3,
+                   path = results_folder)
+
+my_map <- crop(x = world_map, y = studyArea)
+
+#Vamos a crear 500 puntos aleatorios, para un análisis real no son muchos, pero
+#en este caso no queremos que los tiempos de computación se alarguen mucho
+bg_rand <- spatSample(my_map, 500, "random")
+
+plot(my_map)
+
+points(bg_rand)
+
+#Extraemos las coordenadas
+ceros <- data.frame(terra::geom(bg_rand)[,c("x","y")])
+summary(ceros)
+#Si recordais del primer día, hicimos una relación de las variables climáticas
+#con los puntos de presencia, tenemos que hacer lo mismo con el background
+clima_completo <- rast("Climate_Layers.tif") #las variables climáticas que guardamos
+#el primer día
+
+#Asociamos coordenadas de ausencias a variables climáticas (como el primer día)
+bioclim_extract <- raster::extract(clima_completo,
+                                   ceros[,c("x","y")])
+print(names(linces)) #Comprobamos qué variables nos habíamos quedado previamente
+#y las cogemos también de nuestra nueva tabla
+
+print(names(bioclim_extract))
+
+clima <- subset(bioclim_extract,select = c(Climate_Layers_2, Climate_Layers_4,
+                                         Climate_Layers_8, Climate_Layers_13))
+
+pseudoausencias <- data.frame(cbind(ceros, clima))
+
+columnas <- c("lon","lat","bio2","bio4","bio8","bio13")
+
+#Las próximas líneas hasta el principio de los análisis se encargan de encadenar
+#los datos de las especies con las falsas ausencias que acabamos de crear
+names(lynx_samp)
+names(pardinus_samp)
+
+lynx_samp <- subset(lynx_samp,select = -c(X,sp))
+pardinus_samp <- subset(pardinus_samp,select = -c(X,sp))
+
+colnames(pseudoausencias) <- columnas
+colnames(lynx_samp) <- columnas
+colnames(pardinus_samp) <- columnas
+
+pseudoausencias$pa <- rep(0,length(pseudoausencias$lon))
+lynx_samp$pa <- rep(1,length(lynx_samp$lon))
+pardinus_samp$pa <- rep(1,length(pardinus_samp$lon))
+
+lynxlynx <- rbind(lynx_samp,pseudoausencias)
+lynxpardinus <- rbind(pardinus_samp,pseudoausencias)
+
 #Análisis de solapamiento####
 
 #Análisis de componentes principales (PCA) para las variables climáticas
 
-#Linces europeos
-pca.env <- dudi.pca(rbind(lynx, pardinus)[, 5:8], scannf = FALSE, nf = 2)
+#Vamos a comparar las dos especies de linces europeos entre ellas
+#Esta tarde podréis probar vosotros con vuestras propias especies
+
+#Necesitamos un sample aleatorio del mismo número de ocurrencias para ambas especies
+
+pca.env <- dudi.pca(rbind(lynxlynx, lynxpardinus)[, 3:6], scannf = FALSE, nf = 2)
 ecospat.plot.contrib(contrib = pca.env$co, eigen = pca.env$eig)
 
 # Puntajes de PCA para toda el área de estudio
 scores.globclim <- pca.env$li
 
 # Puntajes de PCA para la distribución de Lynx lynx
-scores.sp.lynx <- suprow(pca.env, lynx[, 5:8])$li
+scores.sp.lynx <- suprow(pca.env, lynxlynx[which(lynxlynx[,7] == 1), 3:6])$li
 
 # Puntajes de PCA para la distribución de Lynx pardinus
-scores.sp.pardinus <- suprow(pca.env, pardinus[, 5:8])$li
+scores.sp.pardinus <- suprow(pca.env, lynxpardinus[which(lynxpardinus[,7] == 1), 3:6])$li
 
 # Puntajes de PCA para todo el área de estudio para Lynx lynx
-scores.clim.lynx <- suprow(pca.env, lynx[, 5:8])$li
+scores.clim.lynx <- suprow(pca.env, lynxlynx[, 3:6])$li
 
 # Puntajes de PCA para todo el área de estudio para Lynx pardinus
-scores.clim.pardinus <- suprow(pca.env, pardinus[, 5:8])$li
+scores.clim.pardinus <- suprow(pca.env, lynxpardinus[, 3:6])$li
 
 # Calcular la Grilla de Densidades de Ocurrencia con ecospat.grid.clim.dyn()
 # Para Lynx lynx
@@ -100,12 +170,8 @@ ecospat.plot.niche.dyn( grid.clim.pardinus, grid.clim.lynx,
   name.axis2 = "PC2",
 )
 
-
-#Añadir el título con control de su posición
-#title(main = "Total Niche Overlap", line = 3)  # Ajusta el valor de `line` para más separación
-
 #Desplazamiento de los centroides del nicho
-#ecospat.shift.centroids(scores.sp.C_alb, scores.sp.C_min, scores.clim.C_alb, scores.clim.C_min)
+ecospat.shift.centroids(scores.sp.lynx, scores.sp.pardinus, scores.clim.lynx, scores.clim.pardinus)
 
 # Calcular los índices de dinámica del nicho con diferentes valores de intersección
 # Nota: No se debe usar NA como valor para intersection
@@ -115,3 +181,7 @@ index_0_05 <- ecospat.niche.dyn.index(grid.clim.lynx, grid.clim.pardinus, inters
 index_na
 index_0
 index_0_05
+
+#Probad ahora a estudiar el solapamiento de nicho para una única variable ambiental
+#(Pista: sólo tenéis que seleccionar una única columna de entre las variables
+#en las líneas de código donde antes ponía [,3:6])
