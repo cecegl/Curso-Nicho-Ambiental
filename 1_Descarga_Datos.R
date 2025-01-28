@@ -105,6 +105,19 @@ linces <- clean_coordinates(x = linces,
                                    outliers_td = 1,
                                    value = "clean")
 
+linces <- linces %>%
+  mutate(across(c("decimalLatitude","decimalLongitude"),round,3))
+
+linces <- clean_coordinates(x = linces,
+                            lon = "decimalLongitude",
+                            lat = "decimalLatitude",
+                            species = "species",
+                            tests = c("validity", "equal",
+                                      "zeros", "outliers",
+                                      "duplicates"),
+                            outliers_td = 1,
+                            value = "clean")
+
 #Descarga de variables ambientales####
   
 clim <- worldclim_global(var = "bio", #todas las variables climáticas disponibles
