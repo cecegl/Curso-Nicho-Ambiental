@@ -140,14 +140,13 @@ my_map <- crop(x = world_map, y = studyArea)
 plot(my_map, axes = TRUE,
      col = "grey95")
 
-points(linces[linces$species=="Lynx pardinus",23:22],pch=20,cex=0.3,col="orange")
-points(linces[linces$species=="Lynx lynx",23:22],pch=20,cex=0.3,col="lightblue")
-points(linces[linces$species=="Lynx rufus",23:22],pch=20,cex=0.3,col="olivedrab3")
-points(linces[linces$species=="Lynx canadensis",23:22],pch=20,cex=0.3,col="brown")
+points(presencias[presencias$species=="especie1",23:22],pch=20,cex=0.3,col="orange")
+points(presencias[presencias$species=="especie2",23:22],pch=20,cex=0.3,col="lightblue")
+points(presencias[presencias$species=="especie3",23:22],pch=20,cex=0.3,col="olivedrab3")
+points(presencias[presencias$species=="especie4",23:22],pch=20,cex=0.3,col="brown")
 
 
 #Ahora vamos a cortar los datos de clima a la extensión deseada
-
 bioclim_data <- crop(x = clim, y = studyArea)
 
 #Comprobamos que ha funcionado dibujando en el mapa la primera de las variables climáticas
@@ -164,17 +163,16 @@ writeRaster(clima_completo, "Climate_Layers.tif")
 #Por último y como paso MÁS importante, tenemos que asignar valores de nuestras
 #variables climáticas a cada uno de los puntos geográficos donde tenemos una presencia
 
-linces_simple <- linces[,c("species","decimalLongitude","decimalLatitude")]
+presencias_simple <- presencias[,c("species","decimalLongitude","decimalLatitude")]
 #nos quedamos sólo con los datos que nos interesan
 
 columnas <- c("sp","lon","lat")
 
-colnames(linces_simple) <- columnas
-
+colnames(presencias_simple) <- columnas
 
 #extraemos las variables climáticas en las coordenadas de presencias
 bioclim_extract <- raster::extract(clima_completo,
-                           linces_simple[,c("lon","lat")])
+                           presencias_simple[,c("lon","lat")])
 
 #Las variables climáticas pueden estar correlacionadas entre sí, lo cuál podría
 #afectar a nuestros análisis sobre o subestimando la influencia de algunas de ellas
@@ -190,8 +188,8 @@ no_corr <- vif_select@results$Variables
 variables_nocorr = subset(clima_df, select = no_corr)
 
 #lo unimos a los datos de gbif (guardamos también un df completo sin descartar variables)
-occ_todas_variables <- data.frame(cbind(linces_simple, clima_df))
-occ_varnocorr <- data.frame(cbind(linces_simple, variables_nocorr))
+occ_todas_variables <- data.frame(cbind(presencias_simple, clima_df))
+occ_varnocorr <- data.frame(cbind(presencias_simple, variables_nocorr))
 
 summary(occ_todas_variables)
 summary(occ_varnocorr) #Existen puntos donde nuestras variables seleccionadas no están
