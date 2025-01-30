@@ -35,20 +35,20 @@ library(CoordinateCleaner)
 
 #Elige un directorio de trabajo
 #(esta será la carpeta donde guardaremos los datos)
-results_folder <- "C:/Users/Usuario/Desktop/cosas serias/MNCN/Curso Nicho Ambiental/Pruebas/2_Results"
+results_folder <- "" #añadid vuestra ruta entre las comillas
 setwd(results_folder)
 
 #Añadimos nuestros credenciales de GBIF para la descarga de datos
 
-GBIF_USER="celiagl"
-GBIF_PWD="CursoNicho2025"
-GBIF_EMAIL="cece.glop@gmail.com"
+GBIF_USER="" #vuestro nombre de usuario de GBIF entre comillas
+GBIF_PWD="" #vuestra contraseña de GBIF (permitid que no haga públca la mía)
+GBIF_EMAIL="" #vuestro correo asociado a GBIF
 
 #Descarga de datos de especies####
 
 #Especie (o especies) con la que vamos a trabajar
-spp_names <- c("Lynx lynx", "Lynx rufus",
-              "Lynx canadensis", "Lynx pardinus")
+spp_names <- c("especie1", "especie2",
+              "especie3", "especie4") #cambiadlo por el nombre de las especies que queráis
 
 #Descargamos y limpiamos los datos
 
@@ -71,7 +71,7 @@ gbif_download <- occ_download(
     pred_gte("year", 1970), #podemos filtrar el año de inicio para eliminar registros muy antiguos
     user = GBIF_USER, pwd = GBIF_PWD, email = GBIF_EMAIL,
     format = "SIMPLE_CSV"
-  )
+  ) #todos los argumentos de esta función podeis modificarlos en base a los datos que querais obtener
   
 #Estas descargas llevan tiempo, puedes comprobar el estado de la tuya con el
 #siguiente comando:
@@ -80,11 +80,11 @@ occ_download_wait(gbif_download)
   
 #Cuando la descarga se completé, aparecerá un mensaje en la consola
 #y entonces podrás guardarla en tu directorio con el siguiente comando:
-linces <- occ_download_get(gbif_download) |>
+presencias <- occ_download_get(gbif_download) |>
     occ_download_import()
   
 #Es importante comprobar que no existan registros duplicados en nuestra descarga
-flags <- clean_coordinates(x = linces,
+flags <- clean_coordinates(x = presencias,
                                        lon = "decimalLongitude",
                                        lat = "decimalLatitude",
                                        species = "species",
@@ -95,7 +95,7 @@ flags <- clean_coordinates(x = linces,
 
 summary(flags)
 
-linces <- clean_coordinates(x = linces,
+presencias <- clean_coordinates(x = presencias,
                                    lon = "decimalLongitude",
                                    lat = "decimalLatitude",
                                    species = "species",
@@ -105,10 +105,10 @@ linces <- clean_coordinates(x = linces,
                                    outliers_td = 1,
                                    value = "clean")
 
-linces <- linces %>%
+presencias <- presencias %>%
   mutate(across(c("decimalLatitude","decimalLongitude"),round,3))
 
-linces <- clean_coordinates(x = linces,
+presencias <- clean_coordinates(x = presencias,
                             lon = "decimalLongitude",
                             lat = "decimalLatitude",
                             species = "species",
@@ -129,7 +129,7 @@ clim <- worldclim_global(var = "bio", #todas las variables climáticas disponibl
 #Unir datos de presencia y variables ambientales####
 
 #Vamos a cortar el espacio geográfico en base a nuestros datos de presencia
-studyArea = extent(-180,180,10,80)
+studyArea = extent(-180,180,10,80) #Modificad esta extensión en base a vuestros datos (lon,lon,lat,lat)
 
 world_map <- world(resolution = 3,
                    path = results_folder)
