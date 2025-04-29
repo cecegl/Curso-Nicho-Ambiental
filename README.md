@@ -8,7 +8,7 @@ propios datos y para futuros análisis.
 Si detectáis algún problema o tenéis alguna duda podéis contactar con nosotros y os atenderemos
 encantados.
 
-**Contacto:** <span style="color:blue"> *celia.gonzalez@mncn.csic.es* </span> /
+**Contacto:** <span style="color:blue"> *celia.gonzalez@ebd.csic.es* </span> /
 <span style="color:blue"> *luis.pertierra@gmail.com*
 
 
