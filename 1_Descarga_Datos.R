@@ -41,14 +41,13 @@ setwd(results_folder)
 #Añadimos nuestros credenciales de GBIF para la descarga de datos
 
 GBIF_USER="" #vuestro nombre de usuario de GBIF entre comillas
-GBIF_PWD="" #vuestra contraseña de GBIF (permitid que no haga públca la mía)
+GBIF_PWD="" #vuestra contraseña de GBIF (permitid que no haga pública la mía)
 GBIF_EMAIL="" #vuestro correo asociado a GBIF
 
 #Descarga de datos de especies####
 
 #Especie (o especies) con la que vamos a trabajar
-spp_names <- c("especie1", "especie2",
-              "especie3", "especie4") #cambiadlo por el nombre de las especies que queráis
+spp_names <- c("especie1", "especie2") #cambiadlo por el nombre de las especies que queráis
 
 #Descargamos y limpiamos los datos
 
@@ -129,7 +128,7 @@ clim <- worldclim_global(var = "bio", #todas las variables climáticas disponibl
 #Unir datos de presencia y variables ambientales####
 
 #Vamos a cortar el espacio geográfico en base a nuestros datos de presencia
-studyArea = extent(-180,180,10,80) #Modificad esta extensión en base a vuestros datos (lon,lon,lat,lat)
+studyArea = extent(-15,50,30,70) #Modificad esta extensión en base a vuestros datos (lon,lon,lat,lat)
 
 world_map <- world(resolution = 3,
                    path = results_folder)

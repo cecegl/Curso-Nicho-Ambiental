@@ -25,7 +25,7 @@ library(terra)
 
 
 # Establece el directorio de trabajo
-results_folder <- "C:/Users/Usuario/Desktop/cosas serias/MNCN/Curso Nicho Ambiental/Pruebas/2_Results"
+results_folder <- ""
 setwd(results_folder)
 #Carga de datos####
 
@@ -51,7 +51,7 @@ pardinus_samp <- pardinus[sample(nrow(pardinus),100),]
 #el espacio que ocupa la especie realmente frente al que no
 
 #Recordad este código de la primera sesión
-studyArea = extent(-10,60,25,75)
+studyArea = extent(-15,50,30,70)
 
 world_map <- world(resolution = 3,
                    path = results_folder)
@@ -82,12 +82,13 @@ print(names(linces)) #Comprobamos qué variables nos habíamos quedado previamen
 
 print(names(bioclim_extract))
 
-clima <- subset(bioclim_extract,select = c(Climate_Layers_2, Climate_Layers_4,
-                                         Climate_Layers_8, Climate_Layers_13))
+clima <- subset(bioclim_extract,select = c(Climate_Layers_1, Climate_Layers_2,
+                                         Climate_Layers_8, Climate_Layers_15,
+                                         Climate_Layers_18))
 
 pseudoausencias <- data.frame(cbind(ceros, clima))
 
-columnas <- c("lon","lat","bio2","bio4","bio8","bio13")
+columnas <- c("lon","lat","bio1","bio2","bio8","bio15","bio18")
 
 #Las próximas líneas hasta el principio de los análisis se encargan de encadenar
 #los datos de las especies con las falsas ausencias que acabamos de crear
